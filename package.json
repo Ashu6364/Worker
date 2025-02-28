@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "worker.js",
   "scripts": {
-    "deploy": "wrangler deploy"
+    "deploy": "npx wrangler deploy"
   },
-  "dependencies": {}
+  "dependencies": {
+    "wrangler": "^3.11.0"
+  }
 }
