@@ -1,24 +1,39 @@
 export default {
   async fetch(request) {
-    const url = "https://www.nseindia.com/api/sector-indices";
+    const url = new URL(request.url);
     
-    const headers = {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-      "Accept": "application/json, text/plain, */*",
-      "Referer": "https://www.nseindia.com/"
-    };
-
-    try {
-      const response = await fetch(url, { headers });
-      const data = await response.json();
-      return new Response(JSON.stringify(data), {
-        headers: { "Content-Type": "application/json" }
-      });
-    } catch (error) {
-      return new Response(JSON.stringify({ error: "Failed to fetch NSE data" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
+    if (url.pathname === "/nse-data") {
+      return fetchNSEData();
     }
+
+    return new Response("Cloudflare Worker is running!", {
+      headers: { "Content-Type": "text/plain" }
+    });
   }
 };
+
+async function fetchNSEData() {
+  const nseUrl = "https://www.nseindia.com/api/marketStatus";
+
+  try {
+    const response = await fetch(nseUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json",
+        "Referer": "https://www.nseindia.com/"
+      }
+    });
+
+    if (!response.ok) {
+      return new Response(`Error: ${response.statusText}`, { status: response.status });
+    }
+
+    const data = await response.json();
+    return new Response(JSON.stringify(data), {
+      headers: { "Content-Type": "application/json" }
+    });
+
+  } catch (error) {
+    return new Response(`Fetch Error: ${error.message}`, { status: 500 });
+  }
+}
