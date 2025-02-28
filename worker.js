@@ -1,7 +1,7 @@
 export default {
     async fetch(request) {
         try {
-            const response = await fetch("https://www.nseindia.com/api/some-endpoint", {
+            const response = await fetch("https://www.nseindia.com/api/allIndices", {
                 headers: {
                     "User-Agent": "Mozilla/5.0",
                     "Accept": "application/json"
