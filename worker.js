@@ -6,8 +6,9 @@ export default {
       return await fetchNSEData();
     }
 
-    return new Response("Cloudflare Worker is running!", {
-      headers: { "Content-Type": "text/plain" },
+    // Fix: Ensure JSON response instead of plain text
+    return new Response(JSON.stringify({ message: "Cloudflare Worker is running!" }), {
+      headers: { "Content-Type": "application/json" }
     });
   }
 };
