@@ -27,7 +27,11 @@ async function fetchNSEData() {
         "Accept-Language": "en-US,en;q=0.9",
         "Connection": "keep-alive",
         "Sec-Fetch-Mode": "cors",
-      }
+      },
+      cf: {
+        cacheTtl: 30, // Cache response for 30 seconds
+        cacheEverything: true,
+      },
     });
 
     if (!response.ok) {
@@ -41,12 +45,11 @@ async function fetchNSEData() {
     }
 
     const data = await response.json();
-    
     return new Response(JSON.stringify(data), {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
-        "Cache-Control": "max-age=30"  // Prevents frequent blocking
+        "Cache-Control": "max-age=30"
       }
     });
 
