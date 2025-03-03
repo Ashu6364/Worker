@@ -28,50 +28,63 @@ async function fetchNSEData() {
         "Sec-Fetch-Mode": "cors",
       },
       cf: {
-        cacheTtl: 30, // Cache response for 30 seconds
+        cacheTtl: 30,
         cacheEverything: true,
       },
     });
 
     if (!response.ok) {
-      return new Response(JSON.stringify({ error: `HTTP Error: ${response.status}` }), {
-        status: response.status,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json"
+      return new Response(
+        JSON.stringify({ error: `HTTP Error: ${response.status}` }),
+        {
+          status: response.status,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
     }
 
     const data = await response.json();
 
-    // ✅ Extract sector indices safely
-    if (!data || !data.data) {
-      return new Response(JSON.stringify({ error: "Invalid NSE response format" }), {
-        status: 500,
-        headers: { "Access-Control-Allow-Origin": "*", "Content-Type": "application/json" }
-      });
+    // Validate that we received a proper response structure
+    if (!data || !data.data || !Array.isArray(data.data)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid NSE response format" }),
+        {
+          status: 500,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
 
-    const sectorIndices = data.data.filter(index =>
-      index.indexName.toLowerCase().includes("sector")
+    // Filter out entries that have a defined indexName and include "sector"
+    const sectorIndices = data.data.filter(
+      (index) =>
+        index.indexName && index.indexName.toLowerCase().includes("sector")
     );
 
     return new Response(JSON.stringify({ sectorIndices }), {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
-        "Cache-Control": "max-age=30"
-      }
+        "Cache-Control": "max-age=30",
+      },
     });
-
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Fetch Error", details: error.message }), {
-      status: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json"
+    return new Response(
+      JSON.stringify({ error: "Fetch Error", details: error.message }),
+      {
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
   }
 }
