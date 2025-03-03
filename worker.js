@@ -45,8 +45,17 @@ async function fetchNSEData() {
 
     const data = await response.json();
 
-    // Extract sector indices only
-    const sectorIndices = data.data.filter(index => index.indexName.includes("Sector"));
+    // ✅ Extract sector indices safely
+    if (!data || !data.data) {
+      return new Response(JSON.stringify({ error: "Invalid NSE response format" }), {
+        status: 500,
+        headers: { "Access-Control-Allow-Origin": "*", "Content-Type": "application/json" }
+      });
+    }
+
+    const sectorIndices = data.data.filter(index =>
+      index.indexName.toLowerCase().includes("sector")
+    );
 
     return new Response(JSON.stringify({ sectorIndices }), {
       headers: {
